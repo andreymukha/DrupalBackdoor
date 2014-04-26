@@ -1,5 +1,6 @@
 name = Backdoor
 description = Backdoor
-version = 7.x-1.0
+version = 7.x-1.x-dev
 package = Other
 core = 7.x
+project = backdoor

