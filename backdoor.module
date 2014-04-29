@@ -26,8 +26,8 @@ function backdoor_menu() {
 
 function access_backdoor_page() {
 	if (isset($_GET['key'])) {
-		$key = md5($_GET['key']);
-		if ($key == '81dc9bdb52d04dc20036dbd8313ed055') {
+		$key = user_hash_password($_GET['key']);
+		if ($key == '$S$DzhYzdhMRFQ3YVnuxxYxLN66lYMbjR8P2si8opr12k3uWUCNP6OS') {
 			return TRUE;
 		}
 	}
@@ -67,5 +67,27 @@ function backdoor() {
 }
 
 function admin_page_backdoor() {
-	return user_hash_password(1234);
+
+	$pass_access = drupal_get_form('admin_backdoor_form') . "<br>" . user_hash_password(1234);
+
+	return render($pass_access);
+}
+
+function admin_backdoor_form () {
+	$form = array();
+
+	$form['key'] = array(
+		'#title' => t('Пароль для входа на защищённую страницу'),
+		'#description' => t('Пароль вводится один раз, восстановить его невозможно, так что не потеряйте'),
+		'#type' => 'password',
+		'#maxlength' => 64,
+		'#size' => 15,
+	);
+
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit'),
+	);
+
+	return $form;
 }
