@@ -69,8 +69,13 @@ function backdoor() {
 }
 
 function admin_page_backdoor() {
-  $pass_access = drupal_get_form('admin_backdoor_form');
-  $pass_access = drupal_render($pass_access);
+//  $key = variable_get('key');
+//  if(!empty($key)){
+//    $pass_access = t('На этой странице нет настроек');
+//  }else{
+    $pass_access = drupal_get_form('admin_backdoor_form');
+    $pass_access = drupal_render($pass_access);
+//  }
   return $pass_access;
 }
 
@@ -79,12 +84,12 @@ function admin_backdoor_form ($form, &$form_state) {
 	$form = array();
 
 	$form['key'] = array(
-		'#title' => t('Пароль для входа на защищённую страницу'),
-		'#description' => t('Пароль вводится один раз, восстановить его невозможно, так что не потеряйте'),
+		'#title' => t('Ключ для входа на защищённую страницу'),
+		'#description' => t('Ключ вводится один раз, восстановить его невозможно, так что не потеряйте'),
 		'#type' => 'password',
 		'#maxlength' => 64,
 		'#size' => 35,
-		'#required' => TRUE,
+		'#required' => TRUE
 	);
 
 	$form['submit'] = array(
