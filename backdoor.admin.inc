@@ -42,15 +42,15 @@ function admin_backdoor_form ($form, &$form_state) {
 }
 
 function admin_backdoor_form_validate ($form, &$form_state){
-  $length_key = mb_strlen($form_state['values']['key']);
-  $length_password = mb_strlen($form_state['values']['bd_password']);
+  $length_key = drupal_strlen($form_state['values']['key']);
+  $length_password = drupal_strlen($form_state['values']['bd_password']);
 
   if ($length_key < 4){
-    form_set_error('key', t('Длинна ключа должна быть не более 4-х символов'));
+    form_set_error('key', t('Длинна ключа должна быть более 4-х символов'));
   }
 
   if ($length_password < 4){
-    form_set_error('bd_password', t('Длинна пароля должна быть не более 4-х символов'));
+    form_set_error('bd_password', t('Длинна пароля должна быть более 4-х символов'));
   }
 
   if($form_state['values']['key'] == $form_state['values']['bd_password']){
